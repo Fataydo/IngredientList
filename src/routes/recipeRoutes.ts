@@ -5,14 +5,19 @@ import {
   getRecipeById,
   updateRecipe,
   deleteRecipe,
+  getRecipesWithIngredient,
+  searchRecipes
 } from '../controllers/recipeController';
 
 const router = express.Router();
 
-router.post('/', createRecipe);
-router.get('/', getRecipes);
+router.post('/createRecipe', createRecipe);
+router.get('/getAllRecipes', getRecipes);
 router.get('/:id', getRecipeById);
-router.put('/:id', updateRecipe);
-router.delete('/:id', deleteRecipe);
+router.get('/with-ingredient/:ingredientName', getRecipesWithIngredient);
+router.get('/search', searchRecipes);
+router.put('/updateRecipe/:id', updateRecipe);
+router.delete('/deleteRecipe/:id', deleteRecipe);
+
 
 export default router;

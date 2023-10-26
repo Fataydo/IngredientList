@@ -20,7 +20,6 @@ mongoose.connect(config.mongo.url)
       }
     });
     app.use(express.json());
-
     app.use('/recipes', recipeRoutes);
     app.use('/ingredients', ingredientRoutes);
     app.use('/categories', categoryRoutes);

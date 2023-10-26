@@ -6,8 +6,8 @@ const recipeSchema = new Schema({
   steps: [String],
   rating: Number,
   images: [String],
-  ingredients: [{ type: Schema.Types.ObjectId, ref: 'Ingredient' }],
-  categories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
+  ingredients: [{ type: Schema.Types.ObjectId, ref: 'Ingredient', default: [] }],
+  categories: [{ type: Schema.Types.ObjectId, ref: 'Category', default: [] }],
 });
 
 export default model('Recipe', recipeSchema);
