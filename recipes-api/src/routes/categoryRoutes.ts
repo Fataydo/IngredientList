@@ -3,8 +3,10 @@ import categoryController from '../controllers/categoryController';
 
 const router = express.Router();
 
-router.get('/allcategories', categoryController.getAllCategories);
+router.get('/getAllCategories', categoryController.getAllCategories);
+router.get('/getCategoryById/:id', categoryController.getCategoryById);
 router.post('/createCategory', categoryController.createCategory);
-// Define other routes for CRUD operations on categories
+router.put('/updateCategory/:id', categoryController.updateCategory);
+router.delete('/deleteCategory/:id', categoryController.deleteCategory);
 
 export default router;

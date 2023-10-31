@@ -1,11 +1,76 @@
-interface Recipe {
-    id: number;
-    name: string;
-    description: string;
-    steps: string[];
-    rating: number;
-    image: string;
+import { Model, DataTypes } from 'sequelize';
+import { sequelize } from '../db/connection'; // Assuming Sequelize for database
+
+class Recipe extends Model {
+  public id!: number;
+  public name!: string;
+  public steps!: string;
+  public description!: string;
+  public rating!: number;
+  public image!: string;
+
+  static associate(models: any) {
+    Recipe.belongsToMany(models.Ingredient, {
+      through: {
+        model: 'RecipeIngredientCategory',
+        unique: false,
+        scope: {
+          quantity: DataTypes.FLOAT,
+          grams: DataTypes.STRING,
+          ingredientId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+              model: 'Ingredients',
+              key: 'id',
+            },
+          },
+          categoryId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+              model: 'Categories',
+              key: 'id',
+            },
+          },
+        },
+      },
+      onDelete: 'CASCADE',
+      as: 'ingredients',
+      foreignKey: 'recipeId',
+      otherKey: 'ingredientId',
+    });
+    Recipe.belongsToMany(models.Category, {
+      through: 'RecipeIngredientCategory',
+      onDelete: 'CASCADE',
+    });
   }
-  
-  export default Recipe;
-  
+}
+
+Recipe.init(
+  {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    steps: {
+        type: DataTypes.TEXT,
+      },
+    description: {
+      type: DataTypes.TEXT,
+    },
+    rating: {
+      type: DataTypes.FLOAT,
+    },
+    image: {
+      type: DataTypes.STRING,
+    },
+  },
+  {
+    sequelize,
+    modelName: 'Recipe',
+    schema: 'recipes',
+  }
+);
+
+export default Recipe;

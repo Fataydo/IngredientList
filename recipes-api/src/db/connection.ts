@@ -1,14 +1,15 @@
-import pgPromise from 'pg-promise';
+import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const pgp = pgPromise({});
-const db = pgp({
+const sequelize = new Sequelize({
+  dialect: 'postgres', // Use the appropriate dialect for your database
   host: process.env.DB_HOST,
-  user: process.env.DB_USER,
+  username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 });
 
-export default db;
+
+export { sequelize };

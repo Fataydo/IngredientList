@@ -3,8 +3,10 @@ import ingredientController from '../controllers/ingredientController';
 
 const router = express.Router();
 
-router.get('/allingredients', ingredientController.getAllIngredients);
+router.get('/getAllIngredients', ingredientController.getAllIngredients);
+router.get('/getIngredientById/:id', ingredientController.getIngredientById);
 router.post('/createIngredient', ingredientController.createIngredient);
-// Define other routes for CRUD operations on ingredients
+router.put('/updateIngredient/:id', ingredientController.updateIngredient);
+router.delete('/deleteIngredient/:id', ingredientController.deleteIngredient);
 
 export default router;
