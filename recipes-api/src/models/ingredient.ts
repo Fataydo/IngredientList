@@ -7,9 +7,11 @@ class Ingredient extends Model {
   public description!: string;
   public image!: string;
 
-  static associate(models: any) {
-    Ingredient.belongsToMany(models.Recipe, { through: 'RecipeIngredientCategory',onDelete: 'CASCADE',
-  });
+  static associate(models:any) {
+    Ingredient.belongsToMany(models.Recipe, {
+      through: models.RecipeIngredient,
+      onDelete: 'CASCADE',
+    });
   }
 }
 

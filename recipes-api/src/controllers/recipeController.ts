@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import Recipe from "../models/Recipe";
-import RecipeIngredientCategory from '../models/recipeIngredientCategory';
+import Recipe from "../models/recipe";
+import RecipeCategory from "../models/RecipeCategory";
+import RecipeIngredient from "../models/RecipeIngredient";
 import Ingredient from '../models/ingredient';
 import Category from '../models/category';
 
@@ -75,9 +76,9 @@ const updateRecipe = async (req: Request, res: Response) => {
     await recipe.update({ name, description, steps, rating, images });
 
     // Update the recipe's ingredients
-    await RecipeIngredientCategory.destroy({ where: { recipeId: id } });
+    await RecipeIngredient.destroy({ where: { recipeId: id } });
     for (const ingredient of ingredients) {
-      await RecipeIngredientCategory.create({
+      await RecipeIngredient.create({
         recipeId: id,
         ingredientId: ingredient.id,
         quantity: ingredient.quantity,

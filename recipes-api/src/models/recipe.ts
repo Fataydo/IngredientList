@@ -1,6 +1,5 @@
 import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../db/connection'; // Assuming Sequelize for database
-
 class Recipe extends Model {
   public id!: number;
   public name!: string;
@@ -9,44 +8,17 @@ class Recipe extends Model {
   public rating!: number;
   public image!: string;
 
-  static associate(models: any) {
+  static associate(models:any) {
     Recipe.belongsToMany(models.Ingredient, {
-      through: {
-        model: 'RecipeIngredientCategory',
-        unique: false,
-        scope: {
-          quantity: DataTypes.FLOAT,
-          grams: DataTypes.STRING,
-          ingredientId: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
-            references: {
-              model: 'Ingredients',
-              key: 'id',
-            },
-          },
-          categoryId: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
-            references: {
-              model: 'Categories',
-              key: 'id',
-            },
-          },
-        },
-      },
+      through: models.RecipeIngredient,
       onDelete: 'CASCADE',
-      as: 'ingredients',
-      foreignKey: 'recipeId',
-      otherKey: 'ingredientId',
     });
     Recipe.belongsToMany(models.Category, {
-      through: 'RecipeIngredientCategory',
+      through: models.RecipeCategory,
       onDelete: 'CASCADE',
     });
   }
 }
-
 Recipe.init(
   {
     name: {

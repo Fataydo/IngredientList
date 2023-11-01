@@ -7,7 +7,7 @@ class Category extends Model {
 
   static associate(models: any) {
     Category.belongsToMany(models.Recipe, {
-      through: 'RecipeIngredientCategory',
+      through: models.RecipeCategory,
       onDelete: 'CASCADE',
     });
   }
