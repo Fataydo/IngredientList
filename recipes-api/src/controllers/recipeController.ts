@@ -5,6 +5,7 @@ import RecipeIngredient from "../models/RecipeIngredient";
 import Ingredient from '../models/ingredient';
 import Category from '../models/category';
 import { Op } from "sequelize";
+
 const createRecipe = async (req:Request, res:Response) => {
   try {
     const { name, steps, description, rating, image, ingredients, categories } = req.body;
@@ -55,12 +56,12 @@ const getAllRecipes = async (req: Request, res: Response) => {
   }
 };
 
-const getRecipeById = async (req: Request, res: Response) => {
-  const { id } = req.params;
+const getRecipeByName = async (req: Request, res: Response) => {
+  const { name } = req.params;
 
   try {
-    // Get the recipe by its ID from the database
-    const recipe = await Recipe.findByPk(id);
+    // Get the recipe by its name from the database
+    const recipe = await Recipe.findOne({ where: { name } });
 
     // If the recipe was found, send it to the client
     if (recipe) {
@@ -161,16 +162,27 @@ const deleteRecipe = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    // Fetch the recipe by its ID and include associated RecipeIngredients and RecipeCategories
-    const recipe = await Recipe.findByPk(id, {
-      include: [RecipeIngredient, RecipeCategory],
-    });
+    const recipe = await Recipe.findByPk(id);
 
     if (recipe) {
-      // Perform cascade delete by calling destroy() on the recipe
+      // Find and delete associated RecipeIngredients
+      const recipeIngredients = await RecipeIngredient.findAll({ where: { recipeId: id } });
+
+      if (recipeIngredients.length > 0) {
+        // If associated RecipeIngredients exist, delete them first
+        await RecipeIngredient.destroy({ where: { recipeId: id } });
+      }
+      // Find and delete associated RecipeCategories
+      const recipeCategories = await RecipeCategory.findAll({ where: { recipeId: id } });
+
+      if (recipeCategories.length > 0) {
+        // If associated RecipeCategories exist, delete them
+        await RecipeCategory.destroy({ where: { recipeId: id } });
+      }
+      // Once associated RecipeIngredients are deleted (if any), delete the Recipe
       await recipe.destroy();
 
-      res.json({ message: 'Recipe deleted successfully' });
+      res.json({ message: 'Recipe and associated RecipeIngredients deleted successfully' });
     } else {
       res.status(404).json({ error: 'Recipe not found' });
     }
@@ -179,40 +191,98 @@ const deleteRecipe = async (req: Request, res: Response) => {
   }
 };
 
-export { deleteRecipe };
+
 const getRecipesByIngredient = async (req: Request, res: Response) => {
   const { ingredient } = req.params;
+  
   try {
-    // Logic to fetch recipes by a specific ingredient from the database
-    // Example:
-    // const recipes = await Recipe.findAll({
-    //   include: [{ model: Ingredient, where: { name: ingredient } }],
-    // });
-    // res.json(recipes);
+    // Find the ingredient ID or get the ingredient directly if it's an object
+    const foundIngredient = await Ingredient.findOne({
+      where: { name: ingredient } // Assuming the name is used to query the ingredient
+    });
+
+    if (!foundIngredient) {
+      return res.status(404).json({ error: 'Ingredient not found' });
+    }
+
+    const ingredientId = foundIngredient.id;
+
+    // Find all recipe IDs associated with the given ingredient from RecipeIngredient
+    const recipeIds = await RecipeIngredient.findAll({
+      attributes: ['recipeId'],
+      where: { ingredientId }
+    });
+
+    if (recipeIds.length === 0) {
+      return res.json({ message: 'No recipes found with this ingredient' });
+    }
+
+    // Extract the IDs into an array
+    const ids = recipeIds.map((recipe) => recipe.recipeId);
+
+    // Find all recipes with the extracted IDs
+    const recipes = await Recipe.findAll({
+      where: { id: ids }
+      // You can include additional attributes or associations if needed
+    });
+
+    res.json({ recipes });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 };
-const searchRecipes = async (req: Request, res: Response) => {
+
+interface RequestQuery {
+  name?: string;
+  categories?: string | string[];
+}
+
+const searchRecipes = async (req: Request<{}, {}, {}, RequestQuery>, res: Response) => {
   const { name, categories } = req.query;
+
   try {
-    // Logic to search recipes by name and optional categories from the database
-    // Example:
-    // let query = { where: {} };
-    // if (name) query.where.name = name;
-    // if (categories) query.include = [{ model: Category, where: { name: categories } }];
-    // const recipes = await Recipe.findAll(query);
-    // res.json(recipes);
+    let whereCondition: any = {};
+
+    if (name) {
+      whereCondition.name = { [Op.iLike]: `%${name}%` };
+    }
+
+    if (categories) {
+      const categoriesArray: string[] = Array.isArray(categories) ? categories : [categories];
+
+      const categoryData = await Category.findAll({
+        where: { name: categoriesArray },
+        attributes: ['id'],
+      });
+
+      const categoryIds = categoryData.map((category: any) => category.id);
+
+      const recipeData = await RecipeCategory.findAll({
+        where: { categoryId: categoryIds },
+        attributes: ['recipeId'],
+      });
+
+      const recipeIds = recipeData.map((recipe: any) => recipe.recipeId);
+
+      whereCondition.id = { [Op.in]: recipeIds };
+    }
+
+    const recipes = await Recipe.findAll({
+      where: whereCondition,
+    });
+
+    res.json({ recipes });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 };
+
 // Implement other CRUD operations for recipes (update, delete, etc.)
 
 export default {
   getAllRecipes,
   createRecipe,
-  getRecipeById,
+  getRecipeByName,
   updateRecipe,
   deleteRecipe,
   getRecipesByIngredient,

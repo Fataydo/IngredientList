@@ -22,7 +22,7 @@ class RecipeIngredient extends Model {
   RecipeIngredient.init({
     recipeId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: {
           tableName: 'Recipes',
@@ -33,7 +33,7 @@ class RecipeIngredient extends Model {
     },
     ingredientId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: {
           tableName: 'Ingredients',

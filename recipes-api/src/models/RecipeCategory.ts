@@ -21,7 +21,7 @@ class RecipeCategory extends Model {
 RecipeCategory.init({
   recipeId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: {
         tableName: 'Recipes',
@@ -32,7 +32,7 @@ RecipeCategory.init({
   },
   categoryId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: {
         tableName: 'Categories',

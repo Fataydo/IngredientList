@@ -25,7 +25,7 @@ Recipe.init(
   {
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     steps: {
         type: DataTypes.TEXT,
