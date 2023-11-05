@@ -9,9 +9,11 @@ class RecipeCategory extends Model {
   static associate(models:any) {
     RecipeCategory.belongsTo(models.Recipe, {
       foreignKey: 'recipeId',
+      onDelete: 'CASCADE',
     });
     RecipeCategory.belongsTo(models.Category, {
       foreignKey: 'categoryId',
+      onDelete: 'CASCADE',
     });
   }
 }
@@ -21,7 +23,10 @@ RecipeCategory.init({
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Recipe',
+      model: {
+        tableName: 'Recipes',
+        schema: 'recipes',
+      },
       key: 'id',
     },
   },
@@ -29,7 +34,10 @@ RecipeCategory.init({
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Category',
+      model: {
+        tableName: 'Categories',
+        schema: 'categories',
+      },
       key: 'id',
     },
   },

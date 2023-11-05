@@ -4,11 +4,12 @@ import RecipeCategory from "../models/RecipeCategory";
 import RecipeIngredient from "../models/RecipeIngredient";
 import Ingredient from '../models/ingredient';
 import Category from '../models/category';
-
-const createRecipe = async (req: Request, res: Response) => {
-  const { name, steps, description, rating, image } = req.body;
-  console.log(req.body);
+import { Op } from "sequelize";
+const createRecipe = async (req:Request, res:Response) => {
   try {
+    const { name, steps, description, rating, image, ingredients, categories } = req.body;
+
+    // Create a new entry in the 'Recipes' table
     const newRecipe = await Recipe.create({
       name,
       steps,
@@ -17,10 +18,26 @@ const createRecipe = async (req: Request, res: Response) => {
       image,
     });
 
-    await newRecipe.save();
+    // Associate ingredients with the recipe in the 'RecipeIngredient' table
+    ingredients.forEach(async (ingredient:any) => {
+      await RecipeIngredient.create({
+        recipeId: newRecipe.id,
+        ingredientId: ingredient.ingredientId,
+        quantity: ingredient.quantity,
+        unit: ingredient.unit,
+      });
+    });
 
-    res.status(201).json(newRecipe); // Respond with the newly created recipe and 201 status code
-  } catch (error: any) {
+    // Associate categories with the recipe in the 'RecipeCategory' table
+    categories.forEach(async (category:any) => {
+      await RecipeCategory.create({
+        recipeId: newRecipe.id,
+        categoryId: category.categoryId,
+      });
+    });
+
+    res.status(201).json({ message: 'Recipe created successfully', recipe: newRecipe });
+  } catch (error:any) {
     res.status(500).json({ error: error.message });
   }
 };
@@ -59,64 +76,110 @@ const getRecipeById = async (req: Request, res: Response) => {
 };
 
 const updateRecipe = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { name, description, steps, rating, images, ingredients, categoryIds } = req.body;
-
   try {
-    // Get the recipe by its ID from the database
-    const recipe = await Recipe.findByPk(id);
+    const id: number = parseInt(req.params.id, 10); // Assuming id is a number
+    const { name, steps, description, rating, image, ingredients, categories } = req.body;
 
-    // If the recipe was not found, send a 404 error
-    if (!recipe) {
-      res.status(404).json({ error: 'Recipe not found' });
-      return;
-    }
+    // Update the details of the recipe in the 'Recipes' table
+    const updatedRecipe = await Recipe.update(
+      { name, steps, description, rating, image },
+      { where: { id } }
+    );
 
-    // Update the recipe
-    await recipe.update({ name, description, steps, rating, images });
+    // Handle Ingredients
+    if (ingredients && Array.isArray(ingredients) && ingredients.length > 0) {
+      for (const ingredient of ingredients) {
+        const existingIngredient = await RecipeIngredient.findOne({
+          where: {
+            recipeId: id,
+            ingredientId: ingredient.ingredientId,
+            quantity: ingredient.quantity,
+            unit: ingredient.unit,
+          },
+        });
 
-    // Update the recipe's ingredients
-    await RecipeIngredient.destroy({ where: { recipeId: id } });
-    for (const ingredient of ingredients) {
-      await RecipeIngredient.create({
-        recipeId: id,
-        ingredientId: ingredient.id,
-        quantity: ingredient.quantity,
-        unit: ingredient.unit,
+        if (existingIngredient) {
+          await RecipeIngredient.update(
+            { quantity: ingredient.quantity, unit: ingredient.unit },
+            { where: { id: existingIngredient.id } }
+          );
+        } else {
+          await RecipeIngredient.create({
+            recipeId: id,
+            ingredientId: ingredient.ingredientId,
+            quantity: ingredient.quantity,
+            unit: ingredient.unit,
+          });
+        }
+      }
+
+      // Delete ingredients that are no longer associated with the recipe
+      await RecipeIngredient.destroy({
+        where: {
+          recipeId: id,
+          ingredientId: {
+            [Op.notIn]: ingredients.map(ing => ing.ingredientId)
+          }
+        }
       });
     }
 
-    // Update the recipe's categories
-    await RecipeCategory.destroy({ where: { recipeId: id } });
-    for (const categoryId of categoryIds) {
-      await RecipeCategory.create({
-        recipeId: id,
-        categoryId,
+    // Handle Categories
+    if (categories && Array.isArray(categories) && categories.length > 0) {
+      for (const category of categories) {
+        const existingCategory = await RecipeCategory.findOne({
+          where: { recipeId: id, categoryId: category.categoryId },
+        });
+
+        if (!existingCategory) {
+          await RecipeCategory.create({
+            recipeId: id,
+            categoryId: category.categoryId,
+          });
+        }
+      }
+
+      // Delete categories that are no longer associated with the recipe
+      await RecipeCategory.destroy({
+        where: {
+          recipeId: id,
+          categoryId: {
+            [Op.notIn]: categories.map(cat => cat.categoryId)
+          }
+        }
       });
     }
 
-    // Save the recipe
-    await recipe.save();
-
-    // Send the updated recipe to the client
-    res.json(recipe);
+    res.status(200).json({ message: 'Recipe updated successfully' });
   } catch (error: any) {
-    // Handle the error
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const deleteRecipe = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   try {
-    // Logic to delete a recipe by its ID from the database
-    // Example:
-    // await Recipe.destroy({ where: { id } });
-    // res.json({ message: 'Recipe deleted successfully' });
+    // Fetch the recipe by its ID and include associated RecipeIngredients and RecipeCategories
+    const recipe = await Recipe.findByPk(id, {
+      include: [RecipeIngredient, RecipeCategory],
+    });
+
+    if (recipe) {
+      // Perform cascade delete by calling destroy() on the recipe
+      await recipe.destroy();
+
+      res.json({ message: 'Recipe deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'Recipe not found' });
+    }
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 };
+
+export { deleteRecipe };
 const getRecipesByIngredient = async (req: Request, res: Response) => {
   const { ingredient } = req.params;
   try {

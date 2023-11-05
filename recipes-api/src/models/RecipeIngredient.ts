@@ -10,9 +10,11 @@ class RecipeIngredient extends Model {
     static associate(models:any) {
         RecipeIngredient.belongsTo(models.Recipe, {
           foreignKey: 'recipeId',
+          onDelete: 'CASCADE',
         });
         RecipeIngredient.belongsTo(models.Ingredient, {
           foreignKey: 'ingredientId',
+          onDelete: 'CASCADE',
         });
       }
   }
@@ -22,7 +24,10 @@ class RecipeIngredient extends Model {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Recipe',
+        model: {
+          tableName: 'Recipes',
+          schema: 'recipes',
+        },
         key: 'id',
       },
     },
@@ -30,7 +35,10 @@ class RecipeIngredient extends Model {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Ingredient',
+        model: {
+          tableName: 'Ingredients',
+          schema: 'ingredients',
+        },
         key: 'id',
       },
     },

@@ -8,13 +8,15 @@ class Recipe extends Model {
   public rating!: number;
   public image!: string;
 
-  static associate(models:any) {
-    Recipe.belongsToMany(models.Ingredient, {
-      through: models.RecipeIngredient,
+  static associate(models: any) {
+    // Example assuming the Recipe model has multiple associations to RecipeIngredient and RecipeCategory
+    Recipe.hasMany(models.RecipeIngredient, {
+      foreignKey: 'recipeId',
       onDelete: 'CASCADE',
     });
-    Recipe.belongsToMany(models.Category, {
-      through: models.RecipeCategory,
+
+    Recipe.hasMany(models.RecipeCategory, {
+      foreignKey: 'recipeId',
       onDelete: 'CASCADE',
     });
   }

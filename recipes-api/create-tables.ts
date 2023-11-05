@@ -18,6 +18,9 @@ import RecipeCategory from './src/models/RecipeCategory';
   await Recipe.sync({ force: true });
   await Ingredient.sync({ force: true });
   await Category.sync({ force: true });
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000);
+  });
   await RecipeIngredient.sync({ force: true });
   await RecipeCategory.sync({ force: true });
   
