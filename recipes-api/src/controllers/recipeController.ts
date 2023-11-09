@@ -45,16 +45,70 @@ const createRecipe = async (req:Request, res:Response) => {
 
 const getAllRecipes = async (req: Request, res: Response) => {
   try {
-    // Get all recipes from the database
-    const recipes = await Recipe.findAll();
+    const recipes = await Recipe.findAll({
+      attributes: ['id', 'name', 'steps', 'description', 'rating', 'image'],
+      raw: true,
+    });
 
-    // Send the recipes to the client
-    res.json(recipes);
+    const recipesWithAssociatedData = await Promise.all(
+      recipes.map(async (recipe: any) => {
+        const recipeId = recipe.id;
+
+        // Fetch RecipeIngredient records including quantity and unit
+        const recipeIngredients = await RecipeIngredient.findAll({
+          where: { recipeId },
+          attributes: ['ingredientId', 'quantity', 'unit'],
+          raw: true,
+        });
+
+        const ingredients = await Promise.all(
+          recipeIngredients.map(async (record: any) => {
+            const { ingredientId, quantity, unit } = record;
+
+            // Fetch Ingredient names using the fetched IDs
+            const ingredient = await Ingredient.findByPk(ingredientId, {
+              attributes: ['name'],
+              raw: true,
+            });
+
+            return { ...ingredient, quantity, unit };
+          })
+        );
+
+        // Fetch RecipeCategory records
+        const categoryIds = await RecipeCategory.findAll({
+          where: { recipeId },
+          attributes: ['categoryId'],
+          raw: true,
+        });
+
+        // Fetch Category names using the fetched IDs
+        const categories = await Promise.all(
+          categoryIds.map(async (record: any) => {
+            const category = await Category.findByPk(record.categoryId, {
+              attributes: ['name'],
+              raw: true,
+            });
+            return category;
+          })
+        );
+
+        return {
+          ...recipe,
+          ingredients,
+          categories,
+        };
+      })
+    );
+    recipesWithAssociatedData.sort((a, b) => a.id - b.id);
+
+    res.json(recipesWithAssociatedData);
   } catch (error: any) {
-    // Handle the error
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 const getRecipeByName = async (req: Request, res: Response) => {
   const { name } = req.params;
