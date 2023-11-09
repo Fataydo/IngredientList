@@ -4,7 +4,7 @@ import RecipeCategory from "../models/RecipeCategory";
 import RecipeIngredient from "../models/RecipeIngredient";
 import Ingredient from '../models/ingredient';
 import Category from '../models/category';
-import { Op } from "sequelize";
+import { Op, WhereOptions } from "sequelize";
 
 const createRecipe = async (req:Request, res:Response) => {
   try {
@@ -114,18 +114,66 @@ const getRecipeByName = async (req: Request, res: Response) => {
   const { name } = req.params;
 
   try {
-    // Get the recipe by its name from the database
-    const recipe = await Recipe.findOne({ where: { name } });
+    const recipe = await Recipe.findOne({
+      where: { name },
+      attributes: ['id', 'name', 'steps', 'description', 'rating', 'image'],
+      raw: true,
+    });
 
-    // If the recipe was found, send it to the client
-    if (recipe) {
-      res.json(recipe);
-    } else {
-      // If the recipe was not found, send a 404 error
+    if (!recipe) {
       res.status(404).json({ error: 'Recipe not found' });
+      return;
     }
+
+    const recipeId = recipe.id;
+
+    // Fetch RecipeIngredient records including quantity and unit
+    const recipeIngredients = await RecipeIngredient.findAll({
+      where: { recipeId },
+      attributes: ['ingredientId', 'quantity', 'unit'],
+      raw: true,
+    });
+
+    const ingredients = await Promise.all(
+      recipeIngredients.map(async (record: any) => {
+        const { ingredientId, quantity, unit } = record;
+
+        // Fetch Ingredient names using the fetched IDs
+        const ingredient = await Ingredient.findByPk(ingredientId, {
+          attributes: ['name'],
+          raw: true,
+        });
+
+        return { ...ingredient, quantity, unit };
+      })
+    );
+
+    // Fetch RecipeCategory records
+    const categoryIds = await RecipeCategory.findAll({
+      where: { recipeId },
+      attributes: ['categoryId'],
+      raw: true,
+    });
+
+    // Fetch Category names using the fetched IDs
+    const categories = await Promise.all(
+      categoryIds.map(async (record: any) => {
+        const category = await Category.findByPk(record.categoryId, {
+          attributes: ['name'],
+          raw: true,
+        });
+        return category;
+      })
+    );
+
+    const result = {
+      ...recipe,
+      ingredients,
+      categories,
+    };
+
+    res.json(result);
   } catch (error: any) {
-    // Handle the error
     res.status(500).json({ error: error.message });
   }
 };
@@ -248,7 +296,7 @@ const deleteRecipe = async (req: Request, res: Response) => {
 
 const getRecipesByIngredient = async (req: Request, res: Response) => {
   const { ingredient } = req.params;
-  
+
   try {
     // Find the ingredient ID or get the ingredient directly if it's an object
     const foundIngredient = await Ingredient.findOne({
@@ -261,7 +309,7 @@ const getRecipesByIngredient = async (req: Request, res: Response) => {
 
     const ingredientId = foundIngredient.id;
 
-    // Find all recipe IDs associated with the given ingredient from RecipeIngredient
+    // Find all Recipe IDs associated with the given ingredient from RecipeIngredient
     const recipeIds = await RecipeIngredient.findAll({
       attributes: ['recipeId'],
       where: { ingredientId }
@@ -276,60 +324,155 @@ const getRecipesByIngredient = async (req: Request, res: Response) => {
 
     // Find all recipes with the extracted IDs
     const recipes = await Recipe.findAll({
-      where: { id: ids }
-      // You can include additional attributes or associations if needed
+      where: { id: ids },
+      raw: true
     });
 
-    res.json({ recipes });
+    const recipesWithAssociatedData = await Promise.all(
+      recipes.map(async (recipe: any) => {
+        const recipeId = recipe.id;
+
+        // Fetch RecipeIngredient records including quantity and unit
+        const recipeIngredients = await RecipeIngredient.findAll({
+          where: { recipeId },
+          attributes: ['ingredientId', 'quantity', 'unit'],
+          raw: true
+        });
+
+        const ingredients = await Promise.all(
+          recipeIngredients.map(async (record: any) => {
+            const { ingredientId, quantity, unit } = record;
+
+            // Fetch Ingredient names using the fetched IDs
+            const ingredient = await Ingredient.findByPk(ingredientId, {
+              attributes: ['name'],
+              raw: true
+            });
+
+            return { ...ingredient, quantity, unit };
+          })
+        );
+
+        // Fetch RecipeCategory records
+        const categoryIds = await RecipeCategory.findAll({
+          where: { recipeId },
+          attributes: ['categoryId'],
+          raw: true
+        });
+
+        // Fetch Category names using the fetched IDs
+        const categories = await Promise.all(
+          categoryIds.map(async (record: any) => {
+            const category = await Category.findByPk(record.categoryId, {
+              attributes: ['name'],
+              raw: true
+            });
+            return category;
+          })
+        );
+
+        return {
+          ...recipe,
+          ingredients,
+          categories
+        };
+      })
+    );
+    recipesWithAssociatedData.sort((a, b) => a.id - b.id);
+
+    res.json({ recipes: recipesWithAssociatedData });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 };
 
-interface RequestQuery {
-  name?: string;
-  categories?: string | string[];
-}
 
-const searchRecipes = async (req: Request<{}, {}, {}, RequestQuery>, res: Response) => {
+const searchRecipes = async (req: Request, res: Response) => {
   const { name, categories } = req.query;
 
+
   try {
-    let whereCondition: any = {};
+    let whereCondition: WhereOptions = {};
 
     if (name) {
-      whereCondition.name = { [Op.iLike]: `%${name}%` };
+      whereCondition['name'] = { [Op.iLike]: `%${name}%` };
     }
 
     if (categories) {
-      const categoriesArray: string[] = Array.isArray(categories) ? categories : [categories];
+      const categoriesArray = Array.isArray(categories) ? categories : [categories];
 
       const categoryData = await Category.findAll({
         where: { name: categoriesArray },
         attributes: ['id'],
       });
 
-      const categoryIds = categoryData.map((category: any) => category.id);
+      const categoryIds = categoryData.map((category) => category.id);
 
       const recipeData = await RecipeCategory.findAll({
         where: { categoryId: categoryIds },
         attributes: ['recipeId'],
       });
 
-      const recipeIds = recipeData.map((recipe: any) => recipe.recipeId);
+      const recipeIds = recipeData.map((recipe) => recipe.recipeId);
 
-      whereCondition.id = { [Op.in]: recipeIds };
+      whereCondition['id'] = { [Op.in]: recipeIds };
     }
 
     const recipes = await Recipe.findAll({
       where: whereCondition,
     });
 
-    res.json({ recipes });
-  } catch (error: any) {
+    const recipesWithIngredientsAndCategories = await Promise.all(
+      recipes.map(async (recipe) => {
+        const recipeId = recipe.id;
+
+        const recipeIngredients = await RecipeIngredient.findAll({
+          where: { recipeId },
+          attributes: ['ingredientId', 'quantity', 'unit'],
+          raw: true,
+        });
+
+        const ingredients = await Promise.all(
+          recipeIngredients.map(async (record) => {
+            const { ingredientId, quantity, unit } = record;
+            const ingredient = await Ingredient.findByPk(ingredientId, {
+              attributes: ['name'],
+              raw: true,
+            });
+            return { ...ingredient, quantity, unit };
+          })
+        );
+
+        const categoryIds = await RecipeCategory.findAll({
+          where: { recipeId },
+          attributes: ['categoryId'],
+          raw: true,
+        });
+
+        const categories = await Promise.all(
+          categoryIds.map(async (record) => {
+            const category = await Category.findByPk(record.categoryId, {
+              attributes: ['name'],
+              raw: true,
+            });
+            return category;
+          })
+        );
+
+        return {
+          ...recipe.dataValues,
+          ingredients,
+          categories,
+        };
+      })
+    );
+
+    res.json({ recipes: recipesWithIngredientsAndCategories });
+  } catch (error:any) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Implement other CRUD operations for recipes (update, delete, etc.)
 

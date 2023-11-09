@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import Category from '../models/category';
-import Recipe from '../models/recipe';
-import { sequelize } from '../db/connection';
-
+import RecipeCategory from '../models/RecipeCategory';
 const getAllCategories = async (req: Request, res: Response) => {
   try {
     // Fetch all categories from the database
@@ -58,28 +56,33 @@ const updateCategory = async (req: Request, res: Response) => {
   }
 };
 
-const deleteCategory = async(req: Request, res: Response) =>{
+const deleteCategory = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    // Find the category by ID
-    const category = await Category.findByPk(id);
+    // Check if the category exists
+    const existingCategory = await Category.findByPk(id);
+    if (!existingCategory) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
 
-    if (category) {
-      // Destroy the category
-      await category.destroy();
+    // Delete the category from RecipeCategory table first
+    const deletedRecipeCategoryCount = await RecipeCategory.destroy({ where: { categoryId: id } });
 
-      // Send a success response
-      res.json({ message: 'Category deleted successfully' });
+    // If there were associated records in RecipeCategory
+    if (deletedRecipeCategoryCount > 0) {
+      // Proceed to delete the category
+      await existingCategory.destroy();
+
+      return res.json({ message: 'Category deleted successfully' });
     } else {
-      // Send a 404 error if the category was not found
-      res.status(404).json({ error: 'Category not found' });
+      return res.status(500).json({ message: 'Error deleting associated records' });
     }
   } catch (error: any) {
-    // Send a 500 error if something went wrong
     res.status(500).json({ error: error.message });
   }
-}
+};
+
 
 export default {
   getAllCategories,

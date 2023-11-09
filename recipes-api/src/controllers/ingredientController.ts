@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Ingredient from '../models/ingredient';
-
+import RecipeIngredient from '../models/RecipeIngredient';
 const getAllIngredients = async (req: Request, res: Response) => {
   try {
     const ingredients = await Ingredient.findAll();
@@ -52,12 +52,29 @@ const updateIngredient = async (req: Request, res: Response) => {
 
 const deleteIngredient = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   try {
-    const deletedCount = await Ingredient.destroy({ where: { id } });
-    if (deletedCount > 0) {
-      res.json({ message: 'Ingredient deleted successfully' });
+    // Check if the ingredient exists
+    const existingIngredient = await Ingredient.findByPk(id);
+    if (!existingIngredient) {
+      return res.status(404).json({ message: 'Ingredient not found' });
+    }
+
+    // Delete the ingredient from RecipeIngredients table first
+    const deletedRecipeIngredient = await RecipeIngredient.destroy({ where: { ingredientId: id } });
+
+    // If there were associated records in RecipeIngredients
+    if (deletedRecipeIngredient > 0) {
+      // Proceed to delete the ingredient
+      const deletedIngredient = await Ingredient.destroy({ where: { id } });
+
+      if (deletedIngredient > 0) {
+        return res.json({ message: 'Ingredient deleted successfully' });
+      } else {
+        return res.status(500).json({ message: 'Error deleting ingredient' });
+      }
     } else {
-      res.status(404).json({ message: 'Ingredient not found' });
+      return res.status(500).json({ message: 'Error deleting associated records' });
     }
   } catch (error: any) {
     res.status(500).json({ error: error.message });
