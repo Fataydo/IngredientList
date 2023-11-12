@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import recipeRoutes from './routes/recipeRoutes';
 import ingredientRoutes from './routes/ingredientRoutes';
 import categoryRoutes from './routes/categoryRoutes';
@@ -6,6 +7,9 @@ import { sequelize } from './db/connection';
 
 const app = express();
 const PORT = 9090;
+
+// Use the cors middleware to enable CORS
+app.use(cors());
 
 app.use(express.json());
 
