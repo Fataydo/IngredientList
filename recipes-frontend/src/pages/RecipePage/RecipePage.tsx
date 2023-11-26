@@ -1,17 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RecipeForm from '../../components/RecipeForm';
 import RecipeListView from '../../components/RecipeListView';
-import { AiOutlinePlus, AiOutlineMinus, AiOutlineEdit } from 'react-icons/ai';
+import RecipeSearchForm from '../../components/RecipeSearchForm';
+import { AiOutlinePlus, AiOutlineMinus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import { useGetAllRecipes, useDeleteRecipe } from '../../hooks/useRecipe';
 import { Recipe as RecipeInterface } from '../../components/interface';
 import RecipeUpdateForm from '../../components/RecipeUpdateForm';
 
 const Recipe = () => {
-  const { recipes, loading, error } = useGetAllRecipes();
+  const { recipes: allRecipes, loading, error } = useGetAllRecipes();
+  const [recipes, setRecipes] = useState<RecipeInterface[]>(allRecipes);
   const [selectedRecipe, setSelectedRecipe] = useState<RecipeInterface | null>(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
-  const [isUpdateFormVisible, setIsUpdateFormVisible] = useState(false); // Separate state for Update Form
+  const [isUpdateFormVisible, setIsUpdateFormVisible] = useState(false);
   const { deleteRecipe } = useDeleteRecipe();
+
+  useEffect(() => {
+    setRecipes(allRecipes);
+  }, [allRecipes]);
 
   if (loading) {
     return <p>Loading...</p>;
@@ -23,12 +29,11 @@ const Recipe = () => {
 
   const handleRecipeClick = (recipe: RecipeInterface) => {
     if (selectedRecipe && selectedRecipe.id === recipe.id) {
-      // Clicked the same recipe again, hide the detail view
       setSelectedRecipe(null);
-      setIsUpdateFormVisible(false); // Hide the Update Form when hiding the detail view
+      setIsUpdateFormVisible(false);
     } else {
       setSelectedRecipe(recipe);
-      setIsUpdateFormVisible(true); // Show the Update Form when showing the detail view
+      setIsUpdateFormVisible(true);
     }
   };
 
@@ -50,7 +55,7 @@ const Recipe = () => {
 
   const handleUpdateClick = (recipe: RecipeInterface) => {
     setSelectedRecipe(recipe);
-    openUpdateForm(); // Show the Update Form when the "Update" button is clicked
+    openUpdateForm();
     console.log('Update button clicked for:', recipe);
   };
 
@@ -60,8 +65,20 @@ const Recipe = () => {
     console.log('Delete button clicked for:', recipe);
   };
 
+  const handleSearch = (query: string, category: string) => {
+    const filteredRecipes = allRecipes.filter((recipe) => {
+      const nameMatch = recipe.name.toLowerCase().includes(query.toLowerCase());
+      const categoryMatch = !category || recipe.categories.some(cat => cat.name === category);
+      return nameMatch && categoryMatch;
+    });
+
+    setRecipes(filteredRecipes);
+  };
+
   return (
     <div>
+      <RecipeSearchForm onSearch={handleSearch} />
+
       <div>
         <button onClick={openForm}>
           <AiOutlinePlus />
@@ -82,7 +99,6 @@ const Recipe = () => {
           onCloseUpdateForm={closeUpdateForm}
         />
       )}
-
 
       <RecipeListView
         recipes={recipes}

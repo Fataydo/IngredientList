@@ -48,4 +48,31 @@ export const useDeleteRecipe = () => {
 };
 
 
+const useGetRecipesByIngredient = (ingredientName:string) => {
+  const [recipes, setRecipes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+
+      try {
+        const response = await axios.get(`http://localhost:9090/api/recipes/getRecipesByIngredient/${ingredientName}`);
+        setRecipes(response.data);
+      } catch (error:any) {
+        setError(error);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, [ingredientName]);
+
+  return { recipes, isLoading, error };
+};
+
+export default useGetRecipesByIngredient;
+
 
