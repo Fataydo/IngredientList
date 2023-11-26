@@ -5,7 +5,7 @@ import { CategoryC as CategoryInterface } from '../../components/interface';
 import CategoryForm from '../../components/CategoryForm';
 import CategoryListView from '../../components/CategoryListView';
 import CategoryUpdateForm from '../../components/CategoryUpdateForm';
-
+import './CategoryPage.css';
 const CategoryPage = () => {
   const { categories, isLoading, error } = useGetAllCategories();
   const [selectedCategory, setSelectedCategory] = useState<CategoryInterface | null>(null);
@@ -59,36 +59,37 @@ const CategoryPage = () => {
   };
 
   return (
-    <div>
-      <div>
-        <button onClick={openForm}>
-          <AiOutlinePlus />
-          Add
-        </button>
-        <button onClick={closeForm}>
-          Close Form
-        </button>
-        <button onClick={closeUpdateForm}>
-          Close Update Form
-        </button>
-      </div>
+<div className="category-page-container">
+  <div className="buttons-container">
+    <button className="add-button" onClick={openForm}>
+      <AiOutlinePlus />
+      Add
+    </button>
+    <button className="close-form-button" onClick={closeForm}>
+      Close Form
+    </button>
+    <button className="close-update-form-button" onClick={closeUpdateForm}>
+      Close Update Form
+    </button>
+  </div>
 
-      {isFormVisible && <CategoryForm onClose={closeForm} />}
-      {isUpdateFormVisible && (
-        <CategoryUpdateForm
-          categoryId={selectedCategory?.id || 0}
-          onCloseUpdateForm={closeUpdateForm}
-        />
-      )}
+  {isFormVisible && <CategoryForm onClose={closeForm} />}
+  {isUpdateFormVisible && (
+    <CategoryUpdateForm
+      categoryId={selectedCategory?.id || 0}
+      onCloseUpdateForm={closeUpdateForm}
+    />
+  )}
 
-      <CategoryListView
-        categories={categories}
-        onCategoryClick={handleCategoryClick}
-        onUpdateClick={handleUpdateClick}
-        onDeleteClick={handleDeleteClick}
-        selectedCategory={selectedCategory}
-      />
-    </div>
+  <CategoryListView
+    categories={categories}
+    onCategoryClick={handleCategoryClick}
+    onUpdateClick={handleUpdateClick}
+    onDeleteClick={handleDeleteClick}
+    selectedCategory={selectedCategory}
+  />
+</div>
+
   );
 };
 

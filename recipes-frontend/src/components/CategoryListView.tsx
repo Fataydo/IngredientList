@@ -1,7 +1,7 @@
 import React from 'react';
 import { CategoryC } from './interface';
 import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
-
+import './CategoryListView.css';
 interface CategoryListViewProps {
   categories: CategoryC[];
   onCategoryClick: (category: CategoryC) => void;
@@ -15,38 +15,41 @@ const CategoryListView: React.FC<CategoryListViewProps> = ({
   onCategoryClick,
   onUpdateClick,
   onDeleteClick,
-  selectedCategory,
 }) => (
-  <div>
-    <h1>Category List</h1>
-    <ul>
-      {categories.map((category) => (
-        <React.Fragment key={category.id}>
-          <li
-            onClick={() => onCategoryClick(category)}
-            style={{
-              cursor: 'pointer',
-              borderBottom: selectedCategory && selectedCategory.id === category.id ? '2px solid blue' : 'none',
-            }}
+  <div className="category-list-view">
+  <h1 className="category-list-title">Category List</h1>
+  <ul className="category-list">
+    {categories.map((category) => (
+      <React.Fragment key={category.id}>
+        <li
+          className="category-item"
+          onClick={() => onCategoryClick(category)}
+        >
+          <p className="category-name">{category.name}</p>
+        </li>
+        <li className="update-button-container">
+          <button
+            className="update-button"
+            onClick={() => onUpdateClick(category)}
           >
-            <p>{category.name}</p>
-          </li>
-          <li>
-            <button onClick={() => onUpdateClick(category)}>
-              <AiOutlineEdit />
-              Update
-            </button>
-          </li>
-          <li>
-            <button onClick={() => onDeleteClick(category)}>
-              <AiOutlineDelete />
-              Delete
-            </button>
-          </li>
-        </React.Fragment>
-      ))}
-    </ul>
-  </div>
+            <AiOutlineEdit />
+            Update
+          </button>
+        </li>
+        <li className="delete-button-container">
+          <button
+            className="delete-button"
+            onClick={() => onDeleteClick(category)}
+          >
+            <AiOutlineDelete />
+            Delete
+          </button>
+        </li>
+      </React.Fragment>
+    ))}
+  </ul>
+</div>
+
 );
 
 export default CategoryListView;

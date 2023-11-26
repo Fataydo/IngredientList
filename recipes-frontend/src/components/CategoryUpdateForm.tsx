@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { CategoryC } from './interface';
 import { useGetAllCategories } from '../hooks/useCategory';
-
+import "./CategoryUpdateForm.css";
 const CategoryUpdateForm = ({ categoryId, onCloseUpdateForm }: { categoryId: number, onCloseUpdateForm: any }) => {
-  const { isLoading, error, categories } = useGetAllCategories();
+  const { categories } = useGetAllCategories();
 
   const [categoryData, setCategoryData] = useState<CategoryC>({
     id: 0,
@@ -43,17 +43,26 @@ const CategoryUpdateForm = ({ categoryId, onCloseUpdateForm }: { categoryId: num
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Name:
-        <input type="text" name="name" value={categoryData.name} onChange={handleInputChange} />
-      </label>
+<form className="category-form" onSubmit={handleSubmit}>
+  <label className="category-label">
+    Name:
+    <input
+      className="category-input"
+      type="text"
+      name="name"
+      value={categoryData.name}
+      onChange={handleInputChange}
+    />
+  </label>
 
-      {/* Additional fields can be added based on the CategoryC interface */}
+  <button className="category-button" type="submit">
+    Submit
+  </button>
+  <button className="category-button" type="button" onClick={onCloseUpdateForm}>
+    Cancel
+  </button>
+</form>
 
-      <button type="submit">Submit</button>
-      <button type="button" onClick={onCloseUpdateForm}>Cancel</button>
-    </form>
   );
 };
 

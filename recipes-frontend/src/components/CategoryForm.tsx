@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useGetAllCategories } from '../hooks/useCategory';
-
+import './CategoryForm.css';
 const CategoryForm = (onCloseForm: any) => {
   const [categoryData, setCategoryData] = useState({
     name: '',
   });
 
-  const { isLoading, error, categories } = useGetAllCategories();
+  const { categories } = useGetAllCategories();
 
   useEffect(() => {
     if (categories.length > 0) {
@@ -41,16 +41,22 @@ const CategoryForm = (onCloseForm: any) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
+    <form className="category-form" onSubmit={handleSubmit}>
+      <label className="category-label">
         Name:
-        <input type="text" name="name" value={categoryData.name} onChange={handleInputChange} />
+        <input
+          className="category-input"
+          type="text"
+          name="name"
+          value={categoryData.name}
+          onChange={handleInputChange}
+        />
       </label>
 
-      {/* Additional fields can be added based on the CategoryC interface */}
-
-      <button type="submit">Submit</button>
-      <button type="button" onClick={onCloseForm}>Cancel</button>
+      <button className="category-button" type="submit">
+        Submit
+      </button>
+      <button className="category-button" type="button" onClick={onCloseForm}>Cancel</button>
     </form>
   );
 };
