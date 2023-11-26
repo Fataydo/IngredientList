@@ -1,12 +1,30 @@
+import useGetAllRecipes from '../../hooks/useRecipe';
+
 function Recipe() {
+  const { recipes, loading, error } = useGetAllRecipes();
 
-
-    return (
-      <>
-  
-      </>
-    )
+  if (loading) {
+    return <p>Loading...</p>;
   }
-  
-  export default Recipe
+
+  if (error) {
+    return <p>Error: {error.message}</p>;
+  }
+
+  return (
+    <div>
+      <h1>Recipes</h1>
+      <ul>
+        {recipes.map((recipe) => (
+          <li key={recipe.id}>
+            <h2>{recipe.name}</h2>
+            <p>{recipe.description}</p>
+            {/* Render other recipe details as needed */}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+export default Recipe;
   

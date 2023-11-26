@@ -2,9 +2,9 @@ function Ingredient() {
 
 
     return (
-      <>
-  
-      </>
+      <div>
+      <h2>Ingredient Page</h2>
+    </div>
     )
   }
   
