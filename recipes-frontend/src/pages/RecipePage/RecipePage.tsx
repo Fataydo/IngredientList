@@ -1,7 +1,14 @@
-import useGetAllRecipes from '../../hooks/useRecipe';
+import React, { useState } from 'react';
+import RecipeForm from '../../components/RecipeForm';
+import RecipeListView from '../../components/RecipeListView';
+import { AiOutlinePlus, AiOutlineEdit, AiOutlineMinus } from 'react-icons/ai';
+import { useGetAllRecipes } from '../../hooks/useRecipe';
+import { Recipe as RecipeInterface } from '../../components/interface';
 
-function Recipe() {
+const Recipe = () => {
   const { recipes, loading, error } = useGetAllRecipes();
+  const [selectedRecipe, setSelectedRecipe] = useState<RecipeInterface | null>(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
   if (loading) {
     return <p>Loading...</p>;
@@ -11,20 +18,49 @@ function Recipe() {
     return <p>Error: {error.message}</p>;
   }
 
+  const handleRecipeClick = (recipe: RecipeInterface) => {
+    if (selectedRecipe && selectedRecipe.id === recipe.id) {
+      // Clicked the same recipe again, hide the detail view
+      setSelectedRecipe(null);
+    } else {
+      setSelectedRecipe(recipe);
+    }
+  };
+
+  const openFormModal = () => {
+    setIsFormVisible(true);
+  };
+
+  const closeFormModal = () => {
+    setIsFormVisible(false);
+  };
+
   return (
     <div>
-      <h1>Recipes</h1>
-      <ul>
-        {recipes.map((recipe) => (
-          <li key={recipe.id}>
-            <h2>{recipe.name}</h2>
-            <p>{recipe.description}</p>
-            {/* Render other recipe details as needed */}
-          </li>
-        ))}
-      </ul>
+      <div>
+        <button onClick={openFormModal}>
+          <AiOutlinePlus />
+          Add
+        </button>
+
+        <button>
+          <AiOutlineEdit />
+          Update
+        </button>
+
+        <button>
+          <AiOutlineMinus />
+          Delete
+        </button>
+      </div>
+
+      {isFormVisible && (
+        <RecipeForm />
+      )}
+
+      <RecipeListView recipes={recipes} onRecipeClick={handleRecipeClick} selectedRecipe={selectedRecipe} />
     </div>
   );
 };
+
 export default Recipe;
-  

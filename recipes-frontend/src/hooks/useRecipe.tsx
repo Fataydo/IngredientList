@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Recipe } from '../components/interface';
 
-const useGetAllRecipes = () => {
+export const useGetAllRecipes = () => {
     const [recipes, setRecipes] = useState<Recipe[]>([]); // Provide the type for recipes
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null); // Provide the type for error
@@ -23,5 +24,5 @@ const useGetAllRecipes = () => {
   
     return { recipes, loading, error };
   };
-  
-  export default useGetAllRecipes;
+
+
