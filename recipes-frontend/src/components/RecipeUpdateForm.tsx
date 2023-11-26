@@ -4,7 +4,7 @@ import { RecipeC, IngredientC, Category } from './interface';
 import { useGetAllIngredients } from '../hooks/useIngredient';
 import { useGetAllCategories } from '../hooks/useCategory';
 import { useGetAllRecipes } from '../hooks/useRecipe';
-
+import "./RecipeUpdateForm.css"
 const RecipeUpdateForm = ({ recipeId }: { recipeId: number, onCloseUpdateForm:any }) => {
     const { recipes } = useGetAllRecipes();
     const { isLoading: ingredientLoading, error: ingredientError, ingredients } = useGetAllIngredients();
@@ -16,9 +16,9 @@ const RecipeUpdateForm = ({ recipeId }: { recipeId: number, onCloseUpdateForm:an
         description: '',
         rating: 0,
         image: '',
-        ingredients: [{ ingredientId: 0, quantity: 0, unit: '' }],
-        categories: [{ categoryId: 0 }],
-    });
+        ingredients: [],
+        categories: [],
+      });
     const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
 
@@ -68,16 +68,17 @@ const RecipeUpdateForm = ({ recipeId }: { recipeId: number, onCloseUpdateForm:an
     };
 
     const handleIngredientChange = (field: string, value: string | number, index: number) => {
-        setRecipeData((prevData) => ({
-            ...prevData,
-            ingredients: prevData.ingredients.map((ingredient, i) =>
-                i === index ? { ...ingredient, [field]: value } : ingredient
-            ),
-        }));
-        setSelectedIngredients((prevSelected) => {
-            const updatedSelected = [...prevSelected];
-            updatedSelected[index] = typeof value === 'string' ? parseInt(value, 10) : value;
-            return updatedSelected;
+        setRecipeData((prevData) => {
+            const updatedIngredients = [...prevData.ingredients];
+            updatedIngredients[index] = {
+                ...updatedIngredients[index],
+                [field]: value,
+            };
+
+            return {
+                ...prevData,
+                ingredients: updatedIngredients,
+            };
         });
     };
 
@@ -151,7 +152,7 @@ const RecipeUpdateForm = ({ recipeId }: { recipeId: number, onCloseUpdateForm:an
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="recipe-update-form" onSubmit={handleSubmit}>
             <label>
                 Name:
                 <input type="text" name="name" value={recipeData.name} onChange={handleInputChange} />

@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import RecipeForm from '../../components/RecipeForm';
 import RecipeListView from '../../components/RecipeListView';
 import RecipeSearchForm from '../../components/RecipeSearchForm';
-import { AiOutlinePlus, AiOutlineMinus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
+import RecipeUpdateForm from '../../components/RecipeUpdateForm';
+import { AiOutlinePlus } from 'react-icons/ai';
 import { useGetAllRecipes, useDeleteRecipe } from '../../hooks/useRecipe';
 import { Recipe as RecipeInterface } from '../../components/interface';
-import RecipeUpdateForm from '../../components/RecipeUpdateForm';
+import './RecipePage.css'; // Import the CSS file
 
-const Recipe = () => {
+const RecipePage = () => {
   const { recipes: allRecipes, loading, error } = useGetAllRecipes();
   const [recipes, setRecipes] = useState<RecipeInterface[]>(allRecipes);
   const [selectedRecipe, setSelectedRecipe] = useState<RecipeInterface | null>(null);
@@ -76,21 +77,22 @@ const Recipe = () => {
   };
 
   return (
-    <div>
-      <RecipeSearchForm onSearch={handleSearch} />
-
-      <div>
-        <button onClick={openForm}>
-          <AiOutlinePlus />
-          Add
+    <div className="recipe-page">
+      <div className="button-container">
+        <button onClick={closeForm} className="action-button">
+          Close Form
         </button>
-        <button onClick={closeForm}>
-          closeform
-        </button>
-        <button onClick={closeUpdateForm}>
-          closeUpdateForm
+        <button onClick={closeUpdateForm} className="action-button">
+          Close Update Form
         </button>
       </div>
+
+      <RecipeSearchForm onSearch={handleSearch} />
+
+        <button className="add-recipe-button "onClick={openForm}>
+          <AiOutlinePlus />
+          Add Recipe
+        </button>
 
       {isFormVisible && <RecipeForm onClose={closeForm} />}
       {isUpdateFormVisible && (
@@ -111,4 +113,4 @@ const Recipe = () => {
   );
 };
 
-export default Recipe;
+export default RecipePage;

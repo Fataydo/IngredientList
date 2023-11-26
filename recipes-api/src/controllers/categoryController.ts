@@ -65,6 +65,7 @@ const deleteCategory = async (req: Request, res: Response) => {
     if (!existingCategory) {
       return res.status(404).json({ message: 'Category not found' });
     }
+    await existingCategory.destroy();
 
     // Delete the category from RecipeCategory table first
     const deletedRecipeCategoryCount = await RecipeCategory.destroy({ where: { categoryId: id } });

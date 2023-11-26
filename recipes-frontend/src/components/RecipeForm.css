@@ -1,0 +1,48 @@
+/* RecipeForm.css */
+
+/* Form container styles */
+.recipe-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: 20px auto;
+  }
+  
+  /* Label styles */
+  .recipe-form label {
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  
+  /* Input and textarea styles */
+  .recipe-form input,
+  .recipe-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+  
+  /* Number input styles */
+  .recipe-form input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+  
+  /* Button styles */
+  .recipe-form button {
+    padding: 10px 15px;
+    background-color: #4caf50; /* Green background color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .recipe-form button:disabled {
+    background-color: #dddddd; /* Grayed-out background color for disabled buttons */
+    cursor: not-allowed;
+  }
+  

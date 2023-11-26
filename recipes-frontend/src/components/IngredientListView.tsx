@@ -1,6 +1,7 @@
 import React from 'react';
 import { IngredientC } from './interface';
-import { AiOutlineEdit, AiOutlineDelete  } from 'react-icons/ai';
+import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
+import "./IngredientListView.css"
 
 interface IngredientListViewProps {
   ingredients: IngredientC[];
@@ -11,27 +12,27 @@ interface IngredientListViewProps {
 }
 
 const IngredientListView: React.FC<IngredientListViewProps> = ({ ingredients, onIngredientClick, onUpdateClick, onDeleteClick, selectedIngredient }) => (
-  <div>
+  <div className="ingredient-list-view">
     <h1>Ingredient List</h1>
-    <ul>
+    <ul className="ingredient-list">
       {ingredients.map((ingredient) => (
         <React.Fragment key={ingredient.id}>
           <li
+            className="ingredient-item"
             onClick={() => onIngredientClick(ingredient)}
-            style={{ cursor: 'pointer', borderBottom: selectedIngredient && selectedIngredient.id === ingredient.id ? '2px solid blue' : 'none' }}
           >
-            <p>{ingredient.name}</p>
-            <p>{ingredient.description}</p>
-            <p>{ingredient.image}</p>
+            <p className="ingredient-name">{ingredient.name}</p>
+            <p className="ingredient-description">{ingredient.description}</p>
+            <p className="ingredient-image">{ingredient.image}</p>
           </li>
-          <li>
-            <button onClick={() => onUpdateClick(ingredient)}>
+          <li className="ingredient-action">
+            <button className="update-button" onClick={() => onUpdateClick(ingredient)}>
               <AiOutlineEdit />
               Update
             </button>
           </li>
-          <li>
-            <button onClick={() => onDeleteClick(ingredient)}>
+          <li className="ingredient-action">
+            <button className="delete-button" onClick={() => onDeleteClick(ingredient)}>
               <AiOutlineDelete />
               Delete
             </button>

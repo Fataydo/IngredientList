@@ -44,24 +44,40 @@ const IngredientForm = ( onCloseForm:any ) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Name:
-        <input type="text" name="name" value={ingredientData.name} onChange={handleInputChange} />
-      </label>
-      <label>
-        Description:
-        <textarea name="description" value={ingredientData.description} onChange={handleInputChange} />
-      </label>
-      <label>
-        Image:
-        <input type="text" name="image" value={ingredientData.image} onChange={handleInputChange} />
-      </label>
+    <form className="ingredient-form" onSubmit={handleSubmit}>
+    <label className="ingredient-label">
+      Name:
+      <input
+        className="ingredient-input"
+        type="text"
+        name="name"
+        value={ingredientData.name}
+        onChange={handleInputChange}
+      />
+    </label>
+    <label className="ingredient-label">
+      Description:
+      <textarea
+        className="ingredient-textarea"
+        name="description"
+        value={ingredientData.description}
+        onChange={handleInputChange}
+      />
+    </label>
+    <label className="ingredient-label">
+      Image:
+      <input
+        className="ingredient-input"
+        type="text"
+        name="image"
+        value={ingredientData.image}
+        onChange={handleInputChange}
+      />
+    </label>
 
-      {/* Additional fields can be added based on the IngredientC interface */}
-
-      <button type="submit">Submit</button>
-      <button type="button" onClick={onCloseForm}>Cancel</button>
+    <button className="ingredient-button" type="submit">
+      Submit
+    </button>
     </form>
   );
 };

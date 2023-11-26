@@ -3,6 +3,7 @@ import axios from 'axios';
 import { RecipeC, IngredientC, Category } from './interface';
 import { useGetAllIngredients } from '../hooks/useIngredient';
 import { useGetAllCategories } from '../hooks/useCategory';
+import './RecipeForm.css';
 
 const RecipeForm = (onCloseForm:any) => {
   const [recipeData, setRecipeData] = useState<RecipeC>({
@@ -11,8 +12,8 @@ const RecipeForm = (onCloseForm:any) => {
     description: '',
     rating: 0,
     image: '',
-    ingredients: [{ ingredientId: 0, quantity: 0, unit: '' }],
-    categories: [{ categoryId: 0 }],
+    ingredients: [],
+    categories: [],
   });
 
   const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
@@ -129,7 +130,7 @@ const RecipeForm = (onCloseForm:any) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="recipe-form" onSubmit={handleSubmit}>
       <label>
         Name:
         <input type="text" name="name" value={recipeData.name} onChange={handleInputChange} />

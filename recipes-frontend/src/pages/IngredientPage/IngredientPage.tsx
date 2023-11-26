@@ -1,10 +1,13 @@
+// IngredientPage.jsx
+
 import React, { useState } from 'react';
-import { AiOutlinePlus, AiOutlineMinus, AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import { useGetAllIngredients, useDeleteIngredient } from '../../hooks/useIngredient';
 import { IngredientC as IngredientInterface } from '../../components/interface';
 import IngredientForm from '../../components/IngredientForm';
 import IngredientListView from '../../components/IngredientListView';
 import IngredientUpdateForm from '../../components/IngredientUpdateForm';
+import './IngredientPage.css';
 
 const Ingredient = () => {
   const { ingredients, isLoading, error } = useGetAllIngredients();
@@ -14,22 +17,20 @@ const Ingredient = () => {
   const { deleteIngredient } = useDeleteIngredient();
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <p className="loading">Loading...</p>;
   }
 
   if (error) {
-    return <p>Error: {error.message}</p>;
+    return <p className="error">Error: {error.message}</p>;
   }
 
   const handleIngredientClick = (ingredient: IngredientInterface) => {
     if (selectedIngredient && selectedIngredient.id === ingredient.id) {
-      // Clicked the same ingredient again, hide the detail view
-      console.log("selectedingredient",selectedIngredient);
       setSelectedIngredient(null);
-      setIsUpdateFormVisible(false); // Hide the Update Form when hiding the detail view
+      setIsUpdateFormVisible(false);
     } else {
       setSelectedIngredient(ingredient);
-      setIsUpdateFormVisible(true); // Show the Update Form when showing the detail view
+      setIsUpdateFormVisible(true);
     }
   };
 
@@ -51,27 +52,25 @@ const Ingredient = () => {
 
   const handleUpdateClick = (ingredient: IngredientInterface) => {
     setSelectedIngredient(ingredient);
-    openUpdateForm(); // Show the Update Form when the "Update" button is clicked
-    console.log('Update button clicked for:', ingredient);
+    openUpdateForm();
   };
 
   const handleDeleteClick = (ingredient: IngredientInterface) => {
     setSelectedIngredient(ingredient);
     deleteIngredient(ingredient.id);
-    console.log('Delete button clicked for:', ingredient);
   };
 
   return (
-    <div>
-      <div>
-        <button onClick={openForm}>
+    <div className="ingredient-page">
+      <div className="button-container">
+        <button className="add-button" onClick={openForm}>
           <AiOutlinePlus />
           Add
         </button>
-        <button onClick={closeForm}>
+        <button className="close-form-button" onClick={closeForm}>
           Close Form
         </button>
-        <button onClick={closeUpdateForm}>
+        <button className="close-update-form-button" onClick={closeUpdateForm}>
           Close Update Form
         </button>
       </div>

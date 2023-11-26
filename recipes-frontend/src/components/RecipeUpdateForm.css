@@ -1,0 +1,48 @@
+/* RecipeUpdateForm.css */
+
+/* Form container styles */
+.recipe-update-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: 20px auto;
+  }
+  
+  /* Label styles */
+  .recipe-update-form label {
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  
+  /* Input and textarea styles */
+  .recipe-update-form input,
+  .recipe-update-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+  
+  /* Number input styles */
+  .recipe-update-form input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+  
+  /* Button styles */
+  .recipe-update-form button {
+    padding: 10px 15px;
+    background-color: #4caf50; /* Green background color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .recipe-update-form button:disabled {
+    background-color: #dddddd; /* Grayed-out background color for disabled buttons */
+    cursor: not-allowed;
+  }
+  

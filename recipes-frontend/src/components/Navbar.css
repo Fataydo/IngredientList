@@ -1,0 +1,28 @@
+.navbar {
+    background-color: #007bff; /* Same blue color as in the recipe-search-form button */
+    display: flex;
+    justify-content: center; /* Center the content horizontally */
+    padding: 15px;
+  }
+  
+  .nav-list {
+    list-style: none;
+    display: flex;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .nav-item {
+    margin: 0 10px;
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    color: white; /* White text color for the links */
+    font-weight: bold;
+  }
+  
+  .nav-link:hover {
+    color: #ffcc00; /* Yellow color on hover */
+  }
+  

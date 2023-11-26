@@ -1,0 +1,36 @@
+/* IngredientForm.css */
+
+.ingredient-update-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: 20px auto;
+  }
+  
+  .form-label {
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  
+  .ingredient-input,
+  .ingredient-textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+  
+  .ingredient-button {
+    padding: 10px 15px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .ingredient-button:disabled {
+    background-color: #dddddd;
+    cursor: not-allowed;
+  }
+  

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useGetAllCategories } from '../hooks/useCategory';
 import { CategoryC } from './interface';
+import './RecipeSearchForm.css';
 
 interface RecipeSearchFormProps {
   onSearch: (searchQuery: string, selectedCategory: string) => void;
@@ -40,12 +41,12 @@ const RecipeSearchForm: React.FC<RecipeSearchFormProps> = ({ onSearch }) => {
   }
 
   return (
-    <form onSubmit={handleSearch}>
-      <label>
+    <form className="recipe-search-form" onSubmit={handleSearch}>
+      <label className="search-label">
         Search Recipes:
         <input type="text" value={searchQuery} onChange={handleSearchQueryChange} />
       </label>
-      <label>
+      <label className="category-label">
         Select Category:
         <select value={selectedCategory} onChange={handleCategoryChange}>
           <option value="">All Categories</option>
@@ -56,7 +57,7 @@ const RecipeSearchForm: React.FC<RecipeSearchFormProps> = ({ onSearch }) => {
           ))}
         </select>
       </label>
-      <button type="submit">Search</button>
+      <button type="submit" className="search-button">Search</button>
     </form>
   );
 };
