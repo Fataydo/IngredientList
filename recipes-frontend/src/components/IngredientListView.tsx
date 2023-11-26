@@ -1,4 +1,3 @@
-// Ingredient.tsx
 import React from 'react';
 import { IngredientC } from './interface';
 import { AiOutlineEdit, AiOutlineDelete  } from 'react-icons/ai';

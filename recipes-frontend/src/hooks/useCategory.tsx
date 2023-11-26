@@ -31,7 +31,7 @@ export const useDeleteCategory = () => {
       setLoading(true);
 
       try {
-          const response = await axios.delete(`http://localhost:9090/api/ingredients/deleteIngredient/${categoryId}`);
+          const response = await axios.delete(`http://localhost:9090/api/categories/deleteCategory/${categoryId}`);
           // Optionally, you can handle the response or perform additional actions here
           console.log('Category deleted successfully:', response.data);
       } catch (error:any) {
