@@ -25,4 +25,27 @@ export const useGetAllRecipes = () => {
     return { recipes, loading, error };
   };
 
+export const useDeleteRecipe = () => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
+
+    const deleteRecipe = async (recipeId: number) => {
+        setLoading(true);
+
+        try {
+            const response = await axios.delete(`http://localhost:9090/api/recipes/deleteRecipe/${recipeId}`);
+            // Optionally, you can handle the response or perform additional actions here
+            console.log('Recipe deleted successfully:', response.data);
+        } catch (error:any) {
+            console.error('Error deleting recipe:', error);
+            setError(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return { deleteRecipe, loading, error };
+};
+
+
 

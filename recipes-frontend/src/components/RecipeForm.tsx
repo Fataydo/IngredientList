@@ -4,7 +4,7 @@ import { RecipeC, IngredientC, Category } from './interface';
 import { useGetAllIngredients } from '../hooks/useIngredient';
 import { useGetAllCategories } from '../hooks/useCategory';
 
-const RecipeForm = () => {
+const RecipeForm = (onCloseForm:any) => {
   const [recipeData, setRecipeData] = useState<RecipeC>({
     name: '',
     steps: '',
@@ -46,7 +46,7 @@ const RecipeForm = () => {
     }));
   };
 
-  const handleIngredientChange = (field: string, value: number, index: number) => {
+  const handleIngredientChange = (field: string, value: string | number, index: number) => {
     setRecipeData((prevData) => ({
       ...prevData,
       ingredients: prevData.ingredients.map((ingredient, i) =>
@@ -55,7 +55,7 @@ const RecipeForm = () => {
     }));
     setSelectedIngredients((prevSelected) => {
       const updatedSelected = [...prevSelected];
-      updatedSelected[index] = value;
+      updatedSelected[index] = typeof value === 'string' ? parseInt(value, 10) : value;
       return updatedSelected;
     });
   };

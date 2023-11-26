@@ -23,3 +23,24 @@ export const useGetAllCategories = () => {
 
   return { isLoading, error, categories };
 };
+export const useDeleteCategory = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const deleteCategory = async (categoryId: number) => {
+      setLoading(true);
+
+      try {
+          const response = await axios.delete(`http://localhost:9090/api/ingredients/deleteIngredient/${categoryId}`);
+          // Optionally, you can handle the response or perform additional actions here
+          console.log('Category deleted successfully:', response.data);
+      } catch (error:any) {
+          console.error('Error deleting Category:', error);
+          setError(error);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  return { deleteCategory, loading, error };
+};

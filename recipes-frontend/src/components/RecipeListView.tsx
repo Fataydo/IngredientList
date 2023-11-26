@@ -1,13 +1,18 @@
 import React from 'react';
 import { Recipe } from './interface';
 import RecipeDetailView from './RecipeDetailView';
+import RecipeUpdateForm from './RecipeUpdateForm';
+import { AiOutlineEdit, AiOutlineDelete  } from 'react-icons/ai';
+
 interface RecipeListViewProps {
   recipes: Recipe[];
   onRecipeClick: (recipe: Recipe) => void;
+  onUpdateClick: (recipe: Recipe) => void;
+  onDeleteClick: (recipe: Recipe) => void;
   selectedRecipe: Recipe | null;
 }
 
-const RecipeListView: React.FC<RecipeListViewProps> = ({ recipes, onRecipeClick, selectedRecipe }) => (
+const RecipeListView: React.FC<RecipeListViewProps> = ({ recipes, onRecipeClick, onUpdateClick,onDeleteClick, selectedRecipe }) => (
   <div>
     <h1>Recipe List</h1>
     <ul>
@@ -29,6 +34,18 @@ const RecipeListView: React.FC<RecipeListViewProps> = ({ recipes, onRecipeClick,
               />
             </li>
           )}
+          <li>
+            <button onClick={() => onUpdateClick(recipe)}>
+              <AiOutlineEdit />
+              Update
+            </button>
+          </li>
+          <li>
+          <button onClick={() => onDeleteClick(recipe)}>
+          <AiOutlineDelete  />
+          Delete
+        </button>
+          </li>
         </React.Fragment>
       ))}
     </ul>

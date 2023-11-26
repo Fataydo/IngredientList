@@ -9,7 +9,6 @@ class Recipe extends Model {
   public image!: string;
 
   static associate(models: any) {
-    // Example assuming the Recipe model has multiple associations to RecipeIngredient and RecipeCategory
     Recipe.hasMany(models.RecipeIngredient, {
       foreignKey: 'recipeId',
       onDelete: 'CASCADE',
