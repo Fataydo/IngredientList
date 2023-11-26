@@ -231,7 +231,7 @@ Click on the link below to join the Postman team and access the shared collectio
 Once you're part of the team, you'll have access to the shared collection.
 
 
-##Frontend
+#Frontend Installation
 
 1. Navigate to the project directory: `cd recipes-frontend`
 2. Install dependencies:: `npm install`
